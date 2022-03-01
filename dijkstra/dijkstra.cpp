@@ -4,7 +4,7 @@ using namespace std;
 #include <fstream>
 #include <stdio.h>
 #include <unistd.h>
-
+#include <string>
 ofstream fileOut;
 
 typedef pair<int, int> ii;
@@ -90,8 +90,7 @@ void linesReader (string line){
             curr = (int) line[i] - 48; // nesse caso não existe número negativo
             
         }
-    }
-    cout << "\n" ;  
+    } 
     return;
 }
 
@@ -108,9 +107,8 @@ void read_v_e( string line){
 
 
 void read(int v1, int v2, int w){
-    // int v1, v2, w;
-
     v1--; v2--;
+    
     adj[v1].push_back({v2, w});
     adj[v2].push_back({v1, w});
 
@@ -126,20 +124,20 @@ void read(int v1, int v2, int w){
     return;
 }
 
-void dijkstra(){
+void dijkstra(int root){
 
        for(int i=0; i < nVertices; i++){ 
         dist[i] = INF; // assign dist vector with INF value
         visited[i] = false; // assign visited vector with false value
    }
-    dist[0] = 0;    
+    dist[root] = 0;    
 
 
     int currVertice, currDistance;
     
     //creating a min-heap priority queue to the smallest element get the highest priority.
     priority_queue<ii, vector<ii>, greater<ii>> pq;
-    pq.push({0,0}); //root {edge Weight, vertice} 
+    pq.push({0,root}); //root {edge Weight, vertice} 
 
     while(!pq.empty()){
         currVertice = pq.top().second;
@@ -158,18 +156,28 @@ void dijkstra(){
     return;
 }
 
-void show(bool write_file){
+void show(bool write_file, bool print_individual, int end){
 
         if(write_file){
-            fileOut << "Menor distancia:  \n"; 
-            for(int i = 0; i < nVertices; i++){
-                fileOut << i+1 << " : " << dist[i] << '\n';
+            if(print_individual){
+                fileOut << "Menor distancia: " << dist[end];
+            }
+            else{
+                fileOut << "Menor distancia:  \n"; 
+                for(int i = 0; i < nVertices; i++){
+                    fileOut << i+1 << " : " << dist[i] << '\n';
+                }
             }
         }
         else if(!write_file){
-            cout << "Menor distancia:  \n"; 
-            for(int i = 0; i < nVertices; i++){
-                cout << i+1 << " : " << dist[i] << '\n';
+             if(print_individual){
+                 cout << "Menor distancia: " << dist[end];
+            }
+            else{
+                cout << "Menor distancia:  \n"; 
+                for(int i = 0; i < nVertices; i++){
+                    cout << i+1 << " : " << dist[i] << '\n';
+                }
             }
         }
 
@@ -178,21 +186,16 @@ void show(bool write_file){
 
 int main(int argc, char **argv){
 
-    bool flag_outFile = false;
+  bool flag_outFile = false, flag_print_individual = false, flag_write_in_file = false, flag_solution = false;
+  int root = 1, end = 0;
   string nameFileOut, nameFileIn;
   nameFileIn = " ";
   for(int i=1; i < argc; i++){ //starting from i=1 to skip the file path that's archived in argv[0]
         
        
         string currArg = argv[i];
-
-        //Debug
-        cout << "iteração [ " << i << " ] = " << argv[i] << "| "<< currArg << "\n";
         
         if(currArg.compare("-h") == 0){
-
-            //debug
-            cout << "ENTRANDO EM -h| [ " << argv[i] << " ] = "<<"We have a -h argument\n";
 
             //Help Options
             cout << "-h : mostra o help\n";
@@ -207,70 +210,87 @@ int main(int argc, char **argv){
             
             nameFileOut = argv[i+1];
             fileOut.open(nameFileOut);
-            // cout << "Name File out: " << nameFileOut << "\n";
             flag_outFile = true;
             i++;
         }
 
         if(currArg.compare("-f") == 0){
-             cout << "-> [ "<< argv[i] << " ] = "<<"We have a -f argument\n";
              nameFileIn = argv[i+1]; 
-             //////////////////////////////////////////////////////////////////////////
             inFile.open(nameFileIn);
-            // cout << "hello \n";
+           
             if(inFile.is_open()){
                 int i = 0;
                 while (getline(inFile, line_file))
                 {
-                    // cout << "hello \n";
-                    // cout << "Line: " << line_file << "\n";
+                    
                     if(i==0){ //reading number of vertices and edges
                         read_v_e(line_file);
                         nVertices = aux_v;
                         nEdges = aux_e;
-                        cout << "( " << nVertices << ", " << nEdges << " )\n";
+                        //debug
+                        // cout << "( " << nVertices << ", " << nEdges << " )\n";
+                        adj.resize(nVertices);
+                        visited.resize(nVertices);
+                        dist.resize(nVertices);
 
                     }
                     else{
                         linesReader(line_file);
                         read(numbers_line[0], numbers_line[1], numbers_line[2]);
-                        cout << "( " << numbers_line[0] << ") "<< "";  
-                        cout << "( " << numbers_line[1] << ") "<< "";  
-                        cout << "( " << numbers_line[2] << ") "<< "\n";  
+                        //debug
+                        // cout << "( " << numbers_line[0] << ") "<< "";  
+                        // cout << "( " << numbers_line[1] << ") "<< "";  
+                        // cout << "( " << numbers_line[2] << ") "<< "\n";  
                     }
                     i++;
                 }
-                adj.resize(nVertices);
-                visited.resize(nVertices);
-                dist.resize(nVertices);
-                dijkstra();
-                inFile.close();
             } 
             else{ 
                 cout<< "Não foi possível abrir o arquivo.";
             }
-            //  cout << "Name File In: " << nameFileIn << "\n";
             i++;
         }
 
         if(currArg.compare("-s") == 0){
-            show(false);
+            flag_solution = true;
+        }
+        if(currArg.compare("-i") == 0){
+            
+            string aux;
+            aux =  argv[i+1];
+            root = stoi(aux);
+            i++;
+        }
+        if(currArg.compare("-l") == 0){
+            
+            flag_print_individual = true;
+            string aux;
+            aux =  argv[i+1];
+            end = stoi(aux);
+            i++;
         }
     }
     if(nameFileIn == " "){
         cout << "| ERRO 001 (arquivo de entrada faltante): \n";
         cout << "| Voce precisa indicar o arquivo de entrada no qual esta contido o grafo a ser executado! \n| Por favor, execute novamente com o comando -f <arquivo> para que o algoritmo possa ser executado corretamente.\n| Ou acesse a central de ajuda com o comando -h\n";
     }
-    if(flag_outFile){
-        show(true);
+    else{
+        dijkstra(root-1);
+        inFile.close();
+        
     }
 
+    if(flag_outFile){
+        show(true, flag_print_individual, end-1);
+        cout << "| Arquivo <" << nameFileOut <<"> gerado com sucesso!";
+        fileOut.close();
+    }else if(flag_solution){
+        show(false,flag_print_individual,end-1);
+    }
+    else{
+        show(false, flag_print_individual, end-1);
+    }
 
-//    fileOut.open(nameFileOut);
-//    cin >> nVertices; 
-
-
-   fileOut.close();
 return 0;
 }
 
