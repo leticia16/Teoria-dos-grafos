@@ -1,0 +1,1 @@
+Vertice: 6 | Distancia partindo da raiz: 2
