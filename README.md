@@ -28,8 +28,8 @@ Após isso, digite o nome do agoritmo para executá-lo com algum parâmentro:
 
 ### O argumento -h irá printar o menu de opções de cada algoritmo:
 - -h : mostra o help
-- -o <arquivo> : redireciona a saida para o ‘‘arquivo’’
-- -f <arquivo> : indica o ‘‘arquivo’’ que contém o grafo de entrada
+- -o \<arquivo> : redireciona a saida para o ‘‘arquivo’’
+- -f \<arquivo> : indica o ‘‘arquivo’’ que contém o grafo de entrada
 - -s : mostra a solução (em ordem crescente)
 - -i : vértice inicial (dependendo do algoritmo)
 - -l : vértice final (dependendo do algoritmo)
